@@ -1,0 +1,44 @@
+1. Найти самый дорогой товар. Вывести имя товара и его цену
+
+SELECT goods.name, prices.value FROM goods 
+	JOIN prices ON goods.id = prices.goods_id
+WHERE prices.value = (SELECT MAX(prices.value) FROM prices)
+
+или со скидкой:
+
+SELECT goods.name, MAX(prices.value - prices.value * prices.discount/100) FROM goods
+	JOIN prices ON goods.id = prices.goods_id
+GROUP BY goods.name
+ORDER BY MAX(prices.value - prices.value * prices.discount/100)
+DESC
+LIMIT 1
+
+
+2.Найти товары с нулевым остатком. Вывести имя товара и его цену
+
+SELECT goods.name, prices.value FROM goods
+	JOIN quantity ON quantity.goods_id = goods.id
+	JOIN prices ON prices.goods_id = goods.id
+WHERE quantity.value = 0
+
+3.Найти производителя с самой большой средней ценой за товары. 
+
+Вывести имя производителя и среднюю стоимость
+SELECT manufacturer.name, ROUND(AVG(prices.value), 2) FROM goods
+	JOIN prices ON prices.goods_id = goods.id
+	JOIN suppliers ON suppliers.id = goods.supplier_id
+	JOIN manufacturer ON manufacturer.id = suppliers.manufacturer_id
+GROUP BY manufacturer.name
+ORDER BY AVG(prices.value)
+DESC
+LIMIT 1
+
+
+4.Найти все товары производителей из Москвы. 
+
+Вывести имена товаров, их цены и имена производителей
+
+SELECT goods.name, prices.value, manufacturer.name FROM goods
+	JOIN prices ON prices.goods_id = goods.id
+	JOIN suppliers ON suppliers.id = goods.supplier_id
+	JOIN manufacturer ON manufacturer.id = suppliers.manufacturer_id AND manufacturer.location = 'Moscow'
